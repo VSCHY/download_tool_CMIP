@@ -52,22 +52,23 @@ for sid in list(a.keys()):
             print("NO OROG")
             continue
 
-    # Then other variables
-    for member in a[sid]:
-        print(member)
-        # Ceate directory with member if not exists (function)
-        dire = dire+"/"+member
-        setdirectory(dire)
-        for expid in ["ssp585", "historical"]:
-            dire = dire +"/"+expid
-            setdirectory(dire)
-            for var in ["tasmax", "tasmin","pr"]:
-                dire = dire+"/"+var
-                setdirectory(dire)
-                if not path.exists(dire+"/script.bash"):
-                    script = get_script(conn, sid = sid, member = member, expid = expid, var = var)
-                    with open(dire +"/script.bash", "w") as f:
-                        f.write(script)
+    # Then other variables (only if orog exists)
+    if path.exists(dire+"/script.bash"):
+        for member in a[sid]:
+            print(member)
+            # Ceate directory with member if not exists (function)
+            mdire = dire+"/"+member
+            setdirectory(mdire)
+            for expid in ["ssp585", "historical"]:
+                expdire = mdire +"/"+expid
+                setdirectory(expdire)
+                for var in ["tasmax", "tasmin","pr"]:
+                    vdire = expdire+"/"+var
+                    setdirectory(vdire)
+                    if not path.exists(vdire+"/script.bash"):
+                        script = get_script(conn, sid = sid, member = member, expid = expid, var = var)
+                        with open(vdire +"/script.bash", "w") as f:
+                            f.write(script)
 
 # Possibility to handle launch of script and concatenation with SUBPROCESS
 # But download speed seemed lower, is it due to SUBPROCESS ?         

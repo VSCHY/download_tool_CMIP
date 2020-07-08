@@ -47,6 +47,7 @@ for i, sid in enumerate(Lsid):
        L = get_member(conn, sid, Lexp_id, Lvar)
        if len(L)> 0:
            D[sid] = L
+           print(len(L), "simulations")
 
 with open(dfile, "w") as a_file:
     json.dump(D, a_file)

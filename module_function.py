@@ -18,31 +18,28 @@ def get_sid(conn, exp_id, variable):
 #
 def get_member(conn, sid, Lexp_id, Lvar):
     # Find the different members
-    ctx = conn.new_context(project="CMIP6", source_id = sid, frequency='mon', experiment_id=Lexp_id, variable = Lvar, realm = "atmos")
+    ctx = conn.new_context(project="CMIP6", source_id = sid, frequency='mon', experiment_id=Lexp_id, variable = Lvar)
     a = ctx.search()
     
-    lenv = [len(b.json["variant_label"]) for b in a]
     variant = [b.json["variant_label"][0] for b in a]
+    nexp = len(Lexp_id)
+    nvar = len(Lvar)
+    EXP = {Lexp_id[i]:i for i in range(nexp)}
+    VAR = {Lvar[i]:i for i in range(nvar)}
+    
     # A améliorer : Développement plus général
     # Ajouter condition orog
     D = {}
     for v in variant:
-       D[v] = [0,0,0,0,0,0]
+       D[v] = [0]*(nexp*nvar)
     for b in a:
        member = b.json["variant_label"][0]
        var = b.json["variable"][0]
        expid = b.json["experiment_id"][0]
-       expf = 0
-       if expid == "ssp585":
-          expf = 1
-       if var == "tasmax": 
-          nvar = 0
-       elif var == "tasmin":
-          nvar = 1
-       elif var == "pr":
-          nvar = 2
+       expf = EXP[expid]
+       varf = VAR[var]
 
-       D[member][3*expf+nvar] = 1
+       D[member][nvar*expf+varf] = 1
 
     L = []
     for v in variant:
