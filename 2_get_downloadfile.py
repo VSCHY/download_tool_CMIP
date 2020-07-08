@@ -19,9 +19,9 @@ password=config.get("OverAll", "password")
 #
 # PARAMETERS
 #
-wrkdir = ""
+wrkdir = "/datoshildr/CMIP6"
 dfile = "Models_CMIP6.json"
-test = True
+test = False
 #
 ##################
 #
@@ -37,14 +37,20 @@ conn = SearchConnection(t, distrib=True)
 a = loadjson(dfile, test)
 
 for sid in list(a.keys()):
+    print("**", sid, "**")
     dire = wrkdir+"/"+sid
     setdirectory(dire)
     # Start with orog
     if not path.exists(dire+"/script.bash"):
-        print(sid,a[sid][0])
-        script = get_script(conn, sid = sid, member = a[sid][0], expid = "historical", var = "orog", realm = "land")
-        with open(dire + "/script.bash", "w") as f:
-            f.write(script)
+        try:
+            script = get_script(conn, sid = sid, var = "orog", realm = "land")
+            with open(dire + "/script.bash", "w") as f:
+                f.write(script)
+        except:
+            with open(dire + "/OROG_ABSENT", "w") as f:
+                f.write("The variable 'orog' is not available")
+            print("NO OROG")
+            continue
 
     # Then other variables
     for member in a[sid]:
@@ -59,7 +65,7 @@ for sid in list(a.keys()):
                 dire = dire+"/"+var
                 setdirectory(dire)
                 if not path.exists(dire+"/script.bash"):
-                    script = get_script(conn, sid, member, expid, var)
+                    script = get_script(conn, sid = sid, member = member, expid = expid, var = var)
                     with open(dire +"/script.bash", "w") as f:
                         f.write(script)
 

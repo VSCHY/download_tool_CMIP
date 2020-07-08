@@ -4,6 +4,7 @@ import numpy as np
 import os
 from os import path
 import json
+import sys
 #
 def get_sid(conn, exp_id, variable):
     # all historical with tmax (to reduce the list)
@@ -22,6 +23,8 @@ def get_member(conn, sid, Lexp_id, Lvar):
     
     lenv = [len(b.json["variant_label"]) for b in a]
     variant = [b.json["variant_label"][0] for b in a]
+    # A améliorer : Développement plus général
+    # Ajouter condition orog
     D = {}
     for v in variant:
        D[v] = [0,0,0,0,0,0]
@@ -53,10 +56,17 @@ def setdirectory(directory):
     if not path.exists(directory) : 
         os.mkdir(directory)
 #
-def get_script(conn, sid, member, expid, var, realm = "atmos"):
-    ctx = conn.new_context(project="CMIP6", frequency='mon', source_id = sid, experiment_id=expid, variable = var, realm = realm, variant_label = member)
+def get_script(conn, sid, expid = None, var = None, member = None, realm = "atmos"):
+    if var == "orog":
+        ctx = conn.new_context(project="CMIP6", source_id = sid, variable = var)
+    else:
+        ctx = conn.new_context(project="CMIP6", frequency='mon', source_id = sid, experiment_id=expid, variable = var, realm = realm, variant_label = member)
     search = ctx.search()
-    simu = search[0]
+    try:
+        simu = search[0]
+    except:
+        print("source_id: {0}, experiment_id: {1}, variables: {2}, realm: {3}, variant_label: {4}".format(sid, expid, var, ream, member))
+        sys.exit()
     fc = simu.file_context()
     script = fc.get_download_script()
     return script
