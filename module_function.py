@@ -1,6 +1,7 @@
 #!/usr/local/bin/python
 #
 import numpy as np
+import os
 from os import path
 import json
 #
@@ -52,8 +53,8 @@ def setdirectory(directory):
     if not path.exists(directory) : 
         os.mkdir(directory)
 #
-def get_script(conn, sid, member, expid, var):
-    ctx = conn.new_context(project="CMIP6", frequency='mon', source_id = sid, experiment_id=expid, variable = var, realm = "atmos", variant_label = member)
+def get_script(conn, sid, member, expid, var, realm = "atmos"):
+    ctx = conn.new_context(project="CMIP6", frequency='mon', source_id = sid, experiment_id=expid, variable = var, realm = realm, variant_label = member)
     search = ctx.search()
     simu = search[0]
     fc = simu.file_context()
