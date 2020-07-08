@@ -43,7 +43,7 @@ def get_member(conn, sid, Lexp_id, Lvar):
 
     L = []
     for v in variant:
-       if np.sum(D[v]) == 6:
+       if np.sum(D[v]) == nexp*nvar:
           L.append(v)
     L = list(np.unique(L))
 

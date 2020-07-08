@@ -49,6 +49,7 @@ for sid in list(a.keys()):
                 for var in ["tasmax", "tasmin","pr"]:
                     vdire = expdire+"/"+var
                     os.chdir(vdire)
+                    print(sid, member, expid, var)
                     subprocess.check_call(["bash", "script.bash"])
 
 # Possibility to handle launch of script and concatenation with SUBPROCESS
