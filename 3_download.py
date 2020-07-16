@@ -13,7 +13,16 @@ openid=config.get("OverAll", "openid")
 password=config.get("OverAll", "password")
 # 
 ###################
+lm = LogonManager()
+lm.logoff()
 
+def log_to_esgf():
+    lm.logon_with_openid(openid, password = password, bootstrap = True)
+    t = "http://esgf-node.llnl.gov/esg-search"
+    conn = SearchConnection(t, distrib=True)
+
+log_to_esgf()
+#
 ##################
 #
 # PARAMETERS
@@ -30,13 +39,14 @@ for sid in list(a.keys()):
     print("**", sid, "**")
     dire = wrkdir+"/"+sid
     # Start with orog
-    if not path.exists(dire+"/script.bash"):
-        try:
-            os.chdir(dire)
-            subprocess.check_call(["bash", "script.bash"])
-        except:
-            print("NO OROG")
-            continue
+    try:
+        os.chdir(dire)
+        subprocess.check_call(["bash", "script.bash"])
+    except:
+        print("NO OROG")
+        with open(wrkdir + "/out.log", "a") as f:
+            f.write("source_id: {0} has no orog variable\n".format(sid))
+        continue
 
     # Then other variables (only if orog exists)
     if path.exists(dire+"/script.bash"):
@@ -50,7 +60,13 @@ for sid in list(a.keys()):
                     vdire = expdire+"/"+var
                     os.chdir(vdire)
                     print(sid, member, expid, var)
-                    subprocess.check_call(["bash", "script.bash"])
+                    if not lm.is_logged_on(): log_to_esgf()
+                    try:
+                       subprocess.check_call(["bash", "script.bash"])
+                    except:
+                       with open(wrkdir + "/out.log", "a") as f:
+                           f.write("Issue with downloading file:\n")
+                           f.write("source_id: {0}, member: {1},experimental_id: {2}, variable: {3}\n".format(sid, member, expid, var))
 
 # Possibility to handle launch of script and concatenation with SUBPROCESS
 # But download speed seemed lower, is it due to SUBPROCESS ?         
