@@ -57,16 +57,29 @@ def get_script(conn, sid, expid = None, var = None, member = None, realm = "atmo
     if var == "orog":
         ctx = conn.new_context(project="CMIP6", source_id = sid, variable = var)
     else:
-        ctx = conn.new_context(project="CMIP6", frequency='mon', source_id = sid, experiment_id=expid, variable = var, realm = realm, variant_label = member)
+        ctx = conn.new_context(project="CMIP6", frequency='mon', source_id = sid, experiment_id=expid, variable = var, variant_label = member)
     search = ctx.search()
+
+    script = None
+    i=0
+    while i<len(search) and script is None:
+        script = script_subfunction(search, i)
+        i +=1
+    if script is None: script = "No files were found that matched the query"
+
+    return script
+#
+def script_subfunction(search, i):
     try:
-        simu = search[0]
+        simu = search[i]
     except:
         print("source_id: {0}, experiment_id: {1}, variables: {2}, realm: {3}, variant_label: {4}".format(sid, expid, var, ream, member))
         sys.exit()
     fc = simu.file_context()
     script = fc.get_download_script()
+    if script == "No files were found that matched the query": script = None
     return script
+
 #
 def loadjson(dfile, testmode = False):
     a = json.load(open(dfile,"r"))
