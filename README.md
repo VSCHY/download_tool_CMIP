@@ -4,7 +4,7 @@ Some tools to help download CMIP6 data
 ## Installation
 Create an environment ESGF to run the code : 
 
-        $ conda create -n ESGF -c conda-forge esgf-pyclient python=3.6 pip numpy
+        $ conda create -n ESGF -c conda-forge esgf-pyclient python=3.6 pip numpy configparser
 
         $ conda activate ESGF
 
@@ -24,4 +24,4 @@ Change to :
          
             query_dict['facets'] = 'null'
             
-            
+           
