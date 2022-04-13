@@ -8,7 +8,7 @@ import sys
 #
 def get_sid(conn, exp_id, variable):
     # all historical with tmax (to reduce the list)
-    ctx = conn.new_context(project="CMIP6", frequency='mon', experiment_id='ssp585', variable = "tasmax", realm = "atmos")
+    ctx = conn.new_context(project="CMIP6", frequency='mon', experiment_id='ssp585', variable = "tasmax", realm = "atmos", facets = "*")
     source_id = []
     a = ctx.search()
     source_id = [b.json["source_id"] for b in a]
@@ -18,7 +18,7 @@ def get_sid(conn, exp_id, variable):
 #
 def get_member(conn, sid, Lexp_id, Lvar):
     # Find the different members
-    ctx = conn.new_context(project="CMIP6", source_id = sid, frequency='mon', experiment_id=Lexp_id, variable = Lvar)
+    ctx = conn.new_context(project="CMIP6", source_id = sid, frequency='mon', experiment_id=Lexp_id, variable = Lvar, facets = "*")
     a = ctx.search()
     
     variant = [b.json["variant_label"][0] for b in a]
@@ -55,9 +55,9 @@ def setdirectory(directory):
 #
 def get_script(conn, sid, expid = None, var = None, member = None, realm = "atmos"):
     if var == "orog":
-        ctx = conn.new_context(project="CMIP6", source_id = sid, variable = var)
+        ctx = conn.new_context(project="CMIP6", source_id = sid, variable = var, facets = "*")
     else:
-        ctx = conn.new_context(project="CMIP6", frequency='mon', source_id = sid, experiment_id=expid, variable = var, variant_label = member)
+        ctx = conn.new_context(project="CMIP6", frequency='mon', source_id = sid, experiment_id=expid, variable = var, variant_label = member, facets = "*")
     search = ctx.search()
 
     script = None
