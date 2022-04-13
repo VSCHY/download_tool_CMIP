@@ -4,7 +4,7 @@ Some tools to help download CMIP6 data
 ## Installation
 Create an environment ESGF to run the code : 
 
-        $ conda create -n ESGF -c conda-forge esgf-pyclient python=3.6 pip numpy configparser
+        $ conda create -n ESGF -c conda-forge esgf-pyclient python=3.6 pip numpy configparser myproxy-logon
 
         $ conda activate ESGF
 
