@@ -23,6 +23,13 @@ wrkdir = "/datoshildr/CMIP6"
 dfile = "Models_CMIP6.json"
 test = False
 #
+# json output file
+# experiments
+Lexp_id = ['historical', "ssp585"]
+# variables
+Lvar = ["tasmax", "tasmin", "pr"]
+
+#
 ##################
 #
 # CONNECTION
@@ -59,10 +66,10 @@ for sid in list(a.keys()):
             # Ceate directory with member if not exists (function)
             mdire = dire+"/"+member
             setdirectory(mdire)
-            for expid in ["ssp585", "historical"]:
+            for expid in Lexp_id:
                 expdire = mdire +"/"+expid
                 setdirectory(expdire)
-                for var in ["tasmax", "tasmin","pr"]:
+                for var in Lvar:
                     vdire = expdire+"/"+var
                     setdirectory(vdire)
                     if not path.exists(vdire+"/script.bash"):
