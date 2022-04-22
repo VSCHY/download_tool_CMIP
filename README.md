@@ -1,7 +1,9 @@
 # download_tool_CMIP
-Some tools to help download CMIP6 data
+Some tools to help download CMIP6 data from the ESGF pyclient (https://esgf-pyclient.readthedocs.io/_/downloads/en/latest/pdf/).
 
-https://esgf-pyclient.readthedocs.io/_/downloads/en/latest/pdf/
+<p align="center">
+<img src="https://unsplash.com/photos/SH_oYiwg224/download?ixid=MnwxMjA3fDB8MXxhbGx8fHx8fHx8fHwxNjUwNjMxMjUx&force=true&w=640" width="50%"/>
+</p>
 
 ## Installation
 Create an environment ESGF to run the code : 
@@ -25,38 +27,29 @@ To make a request you have to complete both .def files:
 *(Create an account on https://esgf-node.llnl.gov/login/)*
 
 ### search.def
-- Name of the json file that will contain all the model/member compatible with your request
- 
+- Name of the json file that will contain all the model/member compatible with your request   
 **dfile =** *my_request.json*
 
-- list of the experiment you consider
-
+- list of the experiment you consider  
 **experiments =** *historical ssp585*
 
-- list of the variables you want to download
-
+- list of the variables you want to download  
 **variables =** *pr tasmax*
 
-- directory where you want to save the downloads
-
+- directory where you want to save the downloads  
 **wrkdir =** */dir/to/save/files/CMIP6*
 
 
 ## DOWNLOAD
-Launch the search and save all the models/member with the experiments / variables you are interested in:
+Launch the search and save all the models/member with the experiments / variables you are interested in:  
+1 ) `python 1_get_memberlist.py`  
 
-1. `python 1_get_memberlist.py`
+Create the directory structure for the download and prepare the Script.bash file to download the files:  
+2 ) `python 2_get_downloadfile.py`  
 
-Create the directory structure for the download and prepare the Script.bash file to download the files:
+Launch the download:  
+3 ) `python 3_download.py`
 
-2. `python 2_get_downloadfile.py`
-
-Launch the download:
-
-3. `python 3_download.py`
-
-*During this third step, the download may be blocked due to the waiting of the server.*
-
-*It may also stops after 8 hours (credentials available 8 hours).*
-
+*During this third step, the download may be blocked due to the waiting of the server.*  
+*It may also stops after 8 hours (credentials available 8 hours).*  
 *You have to launch it again, it will pass the already downloaded files.*
