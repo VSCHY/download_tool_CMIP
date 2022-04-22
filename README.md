@@ -6,7 +6,7 @@ https://esgf-pyclient.readthedocs.io/_/downloads/en/latest/pdf/
 ## Installation
 Create an environment ESGF to run the code : 
 
-        $ conda create -n ESGF -c conda-forge esgf-pyclient pip numpy configparser tqdm
+        $ conda create -n ESGF -c conda-forge esgf-pyclient pip numpy configparser
 
         $ conda activate ESGF
 
