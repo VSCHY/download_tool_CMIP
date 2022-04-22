@@ -1,6 +1,8 @@
 # download_tool_CMIP
 Some tools to help download CMIP6 data
 
+https://esgf-pyclient.readthedocs.io/_/downloads/en/latest/pdf/
+
 ## Installation
 Create an environment ESGF to run the code : 
 
