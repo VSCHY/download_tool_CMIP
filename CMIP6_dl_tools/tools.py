@@ -53,9 +53,13 @@ def setdirectory(directory):
     if not path.exists(directory) : 
         os.mkdir(directory)
 #
+
+
+
+#
 def get_script(conn, sid, expid = None, var = None, member = None, realm = "atmos"):
     if var == "orog":
-        ctx = conn.new_context(project="CMIP6", source_id = sid, variable = var, facets = "*")
+        ctx = conn.new_context(project="CMIP6", source_id = sid, variable = var, facets = f"{sid},{var}")
     else:
         ctx = conn.new_context(project="CMIP6", frequency='mon', source_id = sid, experiment_id=expid, variable = var, variant_label = member, facets = "*")
     search = ctx.search()
@@ -90,5 +94,22 @@ def loadjson(dfile, testmode = False):
         a = b
     return a
 #
+def savejson(dfile,D):
+    with open(dfile, "w") as a_file:
+        json.dump(D, a_file)
+
+def save_script(script, directory, filename):
+    with open(directory + "/" + filename, "w") as f:
+                f.write(script)
 
 
+########################
+
+def get_url( sid, expid = None, var = None, member = None, realm = "atmos"):
+    from pyesgf.search import SearchConnection
+    conn = SearchConnection('http://esgf-data.dkrz.de/esg-search', distrib=False)
+    ctx = conn.new_context(project="CMIP6", frequency='mon', source_id = sid, experiment_id=expid, variable = var, variant_label = member, facets = "*")
+    ds = ctx.search()[0]
+    files = ds.file_context().search()
+    url = [f.download_url for f in files]
+    return url

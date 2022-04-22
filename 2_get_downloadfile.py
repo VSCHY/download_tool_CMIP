@@ -1,82 +1,62 @@
-#!/usr/local/bin/python
-#
-from pyesgf.search import SearchConnection
-from pyesgf.logon import LogonManager
-import numpy as np
-import json
-import subprocess
-from module_function import loadjson, get_script, setdirectory
+"""
+Get the download script from CMIP6 for the simulations.
+"""
+from CMIP6_dl_tools import tools
+from CMIP6_dl_tools import inputs
+from CMIP6_dl_tools import connect
 from os import path
-import configparser
-config=configparser.ConfigParser()
-config.read("config.def")
-openid=config.get("OverAll", "openid")
-password=config.get("OverAll", "password")
-# 
-###################
 
 ##################
 #
 # PARAMETERS
 #
-wrkdir = "/datoshildr/CMIP6"
-dfile = "Models_CMIP6.json"
-test = False
-#
-# json output file
-# experiments
-Lexp_id = ['historical', "ssp585"]
-# variables
-Lvar = ["tasmax", "tasmin", "pr"]
+openid, password = inputs.load_login()
+dfile, experiments, variables, wrkdir = inputs.load_inputs()
 
-#
+test = False
+
 ##################
 #
 # CONNECTION
 #
-lm = LogonManager()
-lm.logoff()
-lm.logon_with_openid(openid, password = password, bootstrap = True)
-t = "http://esgf-node.llnl.gov/esg-search"
-print("connect")
-conn = SearchConnection(t, distrib=True)
+lm, conn = connect.init_connection(openid, password)
 
-a = loadjson(dfile, test)
+##################
+#
+# CONNECTION
+#
+a = tools.loadjson(dfile)
 
-for sid in list(a.keys()):
+# FOR EACH MODEL:
+for sid in list(a.keys())[:3]:
     print("**", sid, "**")
+    
     dire = wrkdir+"/"+sid
-    setdirectory(dire)
-    # Start with orog
+    tools.setdirectory(dire)
+
+    # OROGRAPHY
     if not path.exists(dire+"/script.bash"):
         try:
-            script = get_script(conn, sid = sid, var = "orog", realm = "land")
-            with open(dire + "/script.bash", "w") as f:
-                f.write(script)
+            script = tools.get_script(conn, sid = sid, var = "orog", realm = "land")
+            tools.save_script(script, dire, filename = "script.bash")
         except:
-            with open(dire + "/OROG_ABSENT", "w") as f:
-                f.write("The variable 'orog' is not available")
             print("NO OROG")
+            tools.save_script("The variable 'orog' is not available", dire, filename = "OROG_ABSENT")
             continue
 
-    # Then other variables (only if orog exists)
+    # OTHER VARIABLES
     if path.exists(dire+"/script.bash"):
-        for member in a[sid]:
-            print(member)
+        for member in a[sid][:1]:
+            print(" -",member)
             # Ceate directory with member if not exists (function)
-            mdire = dire+"/"+member
-            setdirectory(mdire)
-            for expid in Lexp_id:
-                expdire = mdire +"/"+expid
-                setdirectory(expdire)
-                for var in Lvar:
-                    vdire = expdire+"/"+var
-                    setdirectory(vdire)
-                    if not path.exists(vdire+"/script.bash"):
-                        script = get_script(conn, sid = sid, member = member, expid = expid, var = var)
-                        with open(vdire +"/script.bash", "w") as f:
-                            f.write(script)
+            tools.setdirectory(dire+"/"+member)
+            for expid in experiments:
+                tools.setdirectory(dire + "/" + member + "/" + expid)
+                for var in variables:
+                    dir_variable = dire + "/" + member + "/" + expid + "/" + var
+                    tools.setdirectory(dir_variable)
 
-# Possibility to handle launch of script and concatenation with SUBPROCESS
-# But download speed seemed lower, is it due to SUBPROCESS ?         
-
+                    if not path.exists(dir_variable + "/script.bash"):
+                        script = tools.get_script(conn, sid = sid, member = member, expid = expid, var = var)
+                        tools.save_script(script, dir_variable, filename = "script.bash")
+         

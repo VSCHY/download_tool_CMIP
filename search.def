@@ -1,0 +1,6 @@
+[OverAll]
+
+dfile = my_request.json
+experiments = historical ssp585
+variables = pr tasmax
+wrkdir = /dir/to/save/files/CMIP6

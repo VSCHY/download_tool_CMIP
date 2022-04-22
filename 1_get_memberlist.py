@@ -1,55 +1,42 @@
-#!/usr/local/bin/python
-#
-from pyesgf.search import SearchConnection
-from pyesgf.logon import LogonManager
-import numpy as np
-import json
-import configparser
-from module_function import get_sid, get_member
-#
-config=configparser.ConfigParser()
-config.read("config.def")
-openid=config.get("OverAll", "openid")
-password=config.get("OverAll", "password")
-#
+"""
+Create the json files containing all the simulations with
+the experiment / variables defined in the search.def file.  
+"""
+from CMIP6_dl_tools import tools
+from CMIP6_dl_tools import inputs
+from CMIP6_dl_tools import connect
+
 ##################
 #
 # PARAMETERS 
-#
-# json output file
-dfile  = "./Models_CMIP6.json"
-# experiments
-Lexp_id = ['historical', "ssp585"]
-# variables
-Lvar = ["tasmax", "tasmin", "pr"]
+
+dfile, experiments, variables,_ = inputs.load_inputs()
+openid, password = inputs.load_login()
+print(f"List of experiments: {experiments}")
+print(f"List of variables: {variables}")
 
 ##################
 #
 # CONNECTION
 #
-lm = LogonManager()
-lm.logoff()
-lm.logon_with_openid(openid, password = password, bootstrap = True)
-t = "http://esgf-node.llnl.gov/esg-search"
-print("connect")
-conn = SearchConnection(t, distrib=True)
+lm, conn = connect.init_connection(openid, password)
+
+##################
 #
-# Get the different source_id (model)
+# Get the different model
 #
-Lsid = get_sid(conn, exp_id = "ssp585", variable = "tasmax")
+models = tools.get_sid(conn, exp_id = experiments[0], variable = variables[0])
 #
 # For each source_id, save in D the members with the required data
 #
 D = {}
-for i, sid in enumerate(Lsid):
+for i, sid in enumerate(models):
     if sid not in D:
-       print(sid, i, "/", len(Lsid))
-       L = get_member(conn, sid, Lexp_id, Lvar)
+       print(sid, i, "/", len(models))
+       L = tools.get_member(conn, sid, experiments, variables)
        if len(L)> 0:
            D[sid] = L
-           print(len(L), "simulations")
+           print(" -", len(L), "simulations")
 
-with open(dfile, "w") as a_file:
-    json.dump(D, a_file)
-
-    
+# Save in a json file
+tools.savejson(dfile, D)

@@ -1,79 +1,63 @@
-#!/usr/local/bin/python
-#
-import numpy as np
-import json
-import subprocess
-from module_function import loadjson, get_script, setdirectory
-from os import path
+"""
+Download the files.
+"""
+from CMIP6_dl_tools import tools
+from CMIP6_dl_tools import inputs
+from CMIP6_dl_tools import connect
 import os
-import configparser
-config=configparser.ConfigParser()
-config.read("config.def")
-openid=config.get("OverAll", "openid")
-password=config.get("OverAll", "password")
-# 
-###################
-lm = LogonManager()
-lm.logoff()
+from os import path
+import subprocess
 
-def log_to_esgf():
-    lm.logon_with_openid(openid, password = password, bootstrap = True)
-    t = "http://esgf-node.llnl.gov/esg-search"
-    conn = SearchConnection(t, distrib=True)
 
-log_to_esgf()
-#
 ##################
 #
 # PARAMETERS
 #
-wrkdir = "/datoshildr/CMIP6"
-dfile = "Models_CMIP6.json"
-test = False
-#
-# json output file
-# experiments
-Lexp_id = ['historical', "ssp585"]
-# variables
-Lvar = ["tasmax", "tasmin", "pr"]
-#
+openid, password = inputs.load_login()
+dfile, experiments, variables, wrkdir = inputs.load_inputs()
+ 
 ##################
 #
-a = loadjson(dfile, test)
+# CONNECTION
+#
+lm, conn = connect.init_connection(openid, password)
 
-for sid in list(a.keys()):
+##################
+#
+# DOWNLOAD
+#
+
+a = tools.loadjson(dfile)
+
+for sid in list(a.keys())[:3]:
     print("**", sid, "**")
     dire = wrkdir+"/"+sid
-    # Start with orog
-    try:
-        os.chdir(dire)
-        subprocess.check_call(["bash", "script.bash"])
-    except:
-        print("NO OROG")
+
+    # OROGRAPHY
+    os.chdir(dire)
+    if path.exists(dire+"/script.bash"): 
+        subprocess.call(["bash", "script.bash"])
+    else:
+        print(" - NO OROG")
         with open(wrkdir + "/out.log", "a") as f:
             f.write("source_id: {0} has no orog variable\n".format(sid))
         continue
 
-    # Then other variables (only if orog exists)
+    # OTHER VARIABLES
     if path.exists(dire+"/script.bash"):
-        for member in a[sid]:
-            print(member)
-            # Ceate directory with member if not exists (function)
-            mdire = dire+"/"+member
-            for expid in Lexp_id:
-                expdire = mdire +"/"+expid
-                for var in Lvar:
-                    vdire = expdire+"/"+var
-                    os.chdir(vdire)
-                    print(sid, member, expid, var)
-                    if not lm.is_logged_on(): log_to_esgf()
+        for member in a[sid][:1]:
+            print(" -", member)
+            for expid in experiments:
+                for var in variables:
+
+                    os.chdir(dire + "/" + member + "/" + expid + "/" + var)
+                    print(f" - {sid}, {member}, {expid}, {var}")
+
+                    lm, conn = connect.init_connection(openid, password)
+
                     try:
                        subprocess.check_call(["bash", "script.bash"])
                     except:
                        with open(wrkdir + "/out.log", "a") as f:
                            f.write("Issue with downloading file:\n")
                            f.write("source_id: {0}, member: {1},experimental_id: {2}, variable: {3}\n".format(sid, member, expid, var))
-
-# Possibility to handle launch of script and concatenation with SUBPROCESS
-# But download speed seemed lower, is it due to SUBPROCESS ?         
-
