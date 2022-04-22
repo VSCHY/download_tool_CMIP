@@ -26,6 +26,8 @@ To make a request you have to complete both .def files:
 
 *(Create an account on https://esgf-node.llnl.gov/login/)*
 
+*/!\ write in your terminal: `chmod 600 config.def` so other user cannot see your password* 
+
 ### search.def
 - Name of the json file that will contain all the model/member compatible with your request   
 **dfile =** *my_request.json*
