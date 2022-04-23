@@ -1,3 +1,6 @@
+"""
+Starting the connection to ESGF.
+"""
 from pyesgf.search import SearchConnection
 from pyesgf.logon import LogonManager
 import os
